@@ -1,1 +1,0 @@
-new token write test
