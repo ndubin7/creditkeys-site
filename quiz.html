@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Find Your Fit — CreditKeys</title>
+<meta name="robots" content="noindex">
+
+<link rel="icon" type="image/svg+xml" href="assets/favicon/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-32.png">
+<link rel="apple-touch-icon" href="assets/favicon/apple-touch-icon.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles.css">
+<script src="analytics.js"></script>
+</head>
+<body>
+<!-- Mgid Sensor -->
+<script type="text/javascript">
+    (function() {
+        var d = document, w = window;
+        w.MgSensorData = w.MgSensorData || [];
+        w.MgSensorData.push({
+            cid:988264,
+            project: "a.mgid.com"
+        });
+        var l = "a.mgid.com";
+        var n = d.getElementsByTagName("script")[0];
+        var s = d.createElement("script");
+        s.type = "text/javascript";
+        s.async = true;
+        var dt = !Date.now?new Date().valueOf():Date.now();
+        s.src = "https://" + l + "/mgsensor.js?d=" + dt;
+        n.parentNode.insertBefore(s, n);
+    })();
+</script>
+<!-- /Mgid Sensor -->
+
+<header class="site-header">
+  <div class="container">
+    <a class='logo' href='/'>
+      <span class="keyhole-icon">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="8.5" r="4.2" fill="#B8863E"/>
+          <path d="M9.6 12 L9.6 18.5 L12 21 L14.4 18.5 L14.4 12 Z" fill="#B8863E"/>
+        </svg>
+      </span>
+      CreditKeys
+    </a>
+    <div></div>
+    <div></div>
+  </div>
+</header>
+
+<div class="quiz-wrap">
+
+  <div class="quiz-progress"><div class="quiz-progress-bar" id="progressBar"></div></div>
+
+  <!-- STEP 0: Trust intro — only shown to cold ad traffic, see quiz.js -->
+  <div class="quiz-step" data-step="0">
+    <img src="assets/images/trust-image.jpg" alt="Person holding house keys, building credit toward homeownership" style="width:110px;height:110px;object-fit:cover;object-position:center 30%;border-radius:50%;display:block;margin:0 auto 16px auto;">
+    <span class="eyebrow">Find Your Fit</span>
+    <h2>Not every credit tool works for every person.</h2>
+    <p class="quiz-sub">CreditKeys is a free comparison service for credit-building products — including credit-builder loans and secured credit-building accounts. Your credit score affects real things: apartment approvals, loan interest rates, sometimes even security deposits. But fees, whether you need a Social Security Number, phone requirements, these things are different for each tool. Answer 4 quick questions and we'll tell you which one is actually right for you. It's free and it won't affect your credit score.</p>
+    <div class="hero-badges" style="margin-bottom:28px;">
+      <span class="hero-badge" style="color:var(--ink-soft);">✓ No credit check to see your options</span>
+      <span class="hero-badge" style="color:var(--ink-soft);">✓ We compare, we don't push one option</span>
+    </div>
+    <button class="btn btn-primary" onclick="CreditKeysQuiz.goTo(1)">Get Started</button>
+  </div>
+
+  <!-- STEP 1: Phone type -->
+  <div class="quiz-step active" data-step="1">
+    <span class="eyebrow">Find Your Fit</span>
+    <h2>Is your phone number a regular mobile plan?</h2>
+    <p class="quiz-sub">Some credit-building tools can't verify internet-based numbers (like Google Voice). This just helps us match you correctly, four quick questions, no credit check.</p>
+    <div class="quiz-options">
+      <button class="quiz-option" onclick="CreditKeysQuiz.answer('phone_type', 'mobile')">Yes, a regular mobile number <span class="arrow">→</span></button>
+      <button class="quiz-option" onclick="CreditKeysQuiz.answer('phone_type', 'voip')">No, it's an internet-based or landline number <span class="arrow">→</span></button>
+      <button class="quiz-option" onclick="CreditKeysQuiz.answer('phone_type', 'unsure')">Not sure <span class="arrow">→</span></button>
+    </div>
+  </div>
+
+  <!-- STEP 2: Credit freeze -->
+  <div class="quiz-step" data-step="2">
+    <button class="quiz-back" onclick="CreditKeysQuiz.goTo(1)">← Back</button>
+    <h2>Do you currently have a credit freeze in place?</h2>
+    <p class="quiz-sub">A security freeze with Equifax, Experian, or TransUnion, sometimes set up after identity theft or as a precaution.</p>
+    <div class="quiz-options">
+      <button class="quiz-option" onclick="CreditKeysQuiz.answer('credit_freeze', 'yes')">Yes, I have an active freeze <span class="arrow">→</span></button>
+      <button class="quiz-option" onclick="CreditKeysQuiz.answer('credit_freeze', 'no')">No, or I'm not sure <span class="arrow">→</span></button>
+    </div>
+  </div>
+
+  <!-- STEP 3: SSN / ITIN -->
+  <div class="quiz-step" data-step="3">
+    <button class="quiz-back" onclick="CreditKeysQuiz.goTo(2)">← Back</button>
+    <h2>Do you have a Social Security Number?</h2>
+    <p class="quiz-sub">If not, some options still work using an ITIN instead.</p>
+    <div class="quiz-options">
+      <button class="quiz-option" onclick="CreditKeysQuiz.answer('has_ssn', 'yes')">Yes, I have an SSN <span class="arrow">→</span></button>
+      <button class="quiz-option" onclick="CreditKeysQuiz.answer('has_ssn', 'itin')">No, but I have an ITIN <span class="arrow">→</span></button>
+      <button class="quiz-option" onclick="CreditKeysQuiz.answer('has_ssn', 'neither')">Neither <span class="arrow">→</span></button>
+    </div>
+  </div>
+
+  <!-- STEP 4: Results -->
+  <!-- STEP 4: State — needed because some partners can't operate in certain states -->
+  <div class="quiz-step" data-step="4">
+    <span class="eyebrow">Find Your Fit</span>
+    <h2>Which state do you live in?</h2>
+    <p class="quiz-sub">A couple of these options aren't available in every state. This makes sure we don't send you somewhere you can't actually sign up.</p>
+    <div class="quiz-options">
+      <select id="stateSelect" class="quiz-select" onchange="CreditKeysQuiz.answer('state', this.value)">
+        <option value="">Select your state...</option>
+        <option value="AL">Alabama</option><option value="AK">Alaska</option><option value="AZ">Arizona</option>
+        <option value="AR">Arkansas</option><option value="CA">California</option><option value="CO">Colorado</option>
+        <option value="CT">Connecticut</option><option value="DE">Delaware</option><option value="DC">District of Columbia</option>
+        <option value="FL">Florida</option><option value="GA">Georgia</option><option value="HI">Hawaii</option>
+        <option value="ID">Idaho</option><option value="IL">Illinois</option><option value="IN">Indiana</option>
+        <option value="IA">Iowa</option><option value="KS">Kansas</option><option value="KY">Kentucky</option>
+        <option value="LA">Louisiana</option><option value="ME">Maine</option><option value="MD">Maryland</option>
+        <option value="MA">Massachusetts</option><option value="MI">Michigan</option><option value="MN">Minnesota</option>
+        <option value="MS">Mississippi</option><option value="MO">Missouri</option><option value="MT">Montana</option>
+        <option value="NE">Nebraska</option><option value="NV">Nevada</option><option value="NH">New Hampshire</option>
+        <option value="NJ">New Jersey</option><option value="NM">New Mexico</option><option value="NY">New York</option>
+        <option value="NC">North Carolina</option><option value="ND">North Dakota</option><option value="OH">Ohio</option>
+        <option value="OK">Oklahoma</option><option value="OR">Oregon</option><option value="PA">Pennsylvania</option>
+        <option value="RI">Rhode Island</option><option value="SC">South Carolina</option><option value="SD">South Dakota</option>
+        <option value="TN">Tennessee</option><option value="TX">Texas</option><option value="UT">Utah</option>
+        <option value="VT">Vermont</option><option value="VA">Virginia</option><option value="WA">Washington</option>
+        <option value="WV">West Virginia</option><option value="WI">Wisconsin</option><option value="WY">Wyoming</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="quiz-step" data-step="5">
+    <span class="eyebrow">Your Results</span>
+    <h2 id="resultsHeadline">Here's what fits your situation</h2>
+    <p class="quiz-sub" id="resultsSub"></p>
+
+    <div id="resultsCards"></div>
+
+    <div class="email-capture">
+      <h3>Want these results saved?</h3>
+      <p>We'll email you this exact match, plus a heads-up before any payment step so nothing catches you off guard.</p>
+      <form class="email-form" id="emailForm" onsubmit="return CreditKeysQuiz.submitEmail(event)">
+        <input type="email" id="emailInput" placeholder="you@email.com" required>
+        <button type="submit" class="btn btn-primary">Send My Results</button>
+      </form>
+      <p class="consent-text">By submitting, you agree to receive emails from CreditKeys about your results and related offers. We won't sell your information. Unsubscribe anytime. See our <a href='/privacy'>Privacy Policy</a> and <a href='/terms'>Terms of Use</a>.</p>
+      <div class="form-success" id="formSuccess">Sent! Check your inbox in a few minutes.</div>
+    </div>
+
+    <p style="margin-top:24px;font-size:0.85rem;">
+      <a href='/quiz' onclick='CreditKeysQuiz.restart(event)' style='color:var(--slate);text-decoration:underline;'>Start over</a>
+    </p>
+  </div>
+
+</div>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-links" style="margin-bottom:12px;font-size:0.85rem;">
+      <a href="/privacy" style="color:var(--slate);text-decoration:underline;">Privacy Policy</a>
+      <span style="color:var(--ink-soft);margin:0 8px;">·</span>
+      <a href="/terms" style="color:var(--slate);text-decoration:underline;">Terms of Use</a>
+      <span style="color:var(--ink-soft);margin:0 8px;">·</span>
+      <a href="mailto:hello@creditkeys.online" style="color:var(--slate);text-decoration:underline;">Contact</a>
+    </div>
+    <div class="footer-disclosure">
+      CreditKeys is an independent comparison service. We may receive compensation when you apply through links on this site. This is not financial advice.
+    </div>
+  </div>
+</footer>
+
+<script src="quiz.js"></script>
+</body>
+</html>

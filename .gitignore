@@ -1,0 +1,5 @@
+.DS_Store
+*.gs
+server-scripts/
+.env
+node_modules/
