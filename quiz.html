@@ -26,6 +26,10 @@
 .intro-title{font-size:1.35rem;line-height:1.25;margin:2px 0 0;}
 .intro-sub{margin:0 0 18px;font-size:1rem;line-height:1.5;}
 .quiz-step[data-step="0"] .hero-badges{margin-top:16px;display:flex;flex-direction:column;gap:6px;}
+/* .hero-badge defaults to near-white text for the dark homepage hero; on this
+   light intro panel that renders at ~1.05:1 contrast (invisible). Force the
+   dark ink colour so the trust points are actually readable. */
+.quiz-step[data-step="0"] .hero-badge{color:var(--ink-soft);opacity:1;}
 @media (min-width:700px){.intro-thumb{width:96px;height:96px;flex-basis:96px;}.intro-title{font-size:1.7rem;}}
 </style>
 </head>
