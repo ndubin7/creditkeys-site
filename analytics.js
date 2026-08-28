@@ -1,3 +1,66 @@
+/* ----------------------------------------------------------------
+   CreditKeys - Traffic Attribution + A/B Capture  (added Aug 2026)
+
+   Captures MGID ad-level attribution on the landing hit and keeps it for
+   the whole session, so a conversion coming back from PerformCB can be
+   traced to the exact ad, publisher placement and campaign that produced
+   it. Also exposes the A/B variant so both arms are comparable in GA4.
+
+   Params expected on the ad destination URL (MGID macros):
+     ck_click  = {click_id}     MGID per-click id (also used to postback
+                                the conversion BACK to MGID)
+     ck_ad     = {teaser_id}    which creative
+     ck_widget = {widget_id}    which publisher placement  <-- block bad ones
+     ck_camp   = {campaign_id}  which campaign
+   ---------------------------------------------------------------- */
+(function () {
+  var STORE = { click:"ck_mgid_click", ad:"ck_mgid_ad", widget:"ck_mgid_widget", camp:"ck_mgid_camp" };
+
+  function params() {
+    try { return new URLSearchParams(window.location.search); } catch (e) { return null; }
+  }
+  // Only overwrite when the URL actually carries a value, so later internal
+  // navigation cannot wipe the original ad attribution.
+  function stash(name, key) {
+    var ps = params(); if (!ps) return;
+    var v = ps.get(name);
+    if (v) { try { sessionStorage.setItem(key, v); } catch (e) {} }
+  }
+  stash("ck_click", STORE.click);
+  stash("ck_ad", STORE.ad);
+  stash("ck_widget", STORE.widget);
+  stash("ck_camp", STORE.camp);
+
+  function get(k){ try { return sessionStorage.getItem(k) || ""; } catch(e){ return ""; } }
+
+  // Our own session id. Defined here because analytics.js loads before
+  // quiz.js; quiz.js reads the same key, so both agree on one id per visit.
+  function ourClickId() {
+    var id = null;
+    try { id = sessionStorage.getItem("ck_click_id"); } catch (e) {}
+    if (!id) {
+      id = "ck_" + Date.now() + "_" + Math.random().toString(36).slice(2, 10);
+      try { sessionStorage.setItem("ck_click_id", id); } catch (e) {}
+    }
+    return id;
+  }
+
+  window.CKAttribution = {
+    ourClickId: ourClickId,
+    mgidClickId: function(){ return get(STORE.click); },
+    all: function () {
+      return {
+        ck_click_id: ourClickId(),
+        mgid_click_id: get(STORE.click),
+        mgid_ad_id: get(STORE.ad),
+        mgid_widget_id: get(STORE.widget),
+        mgid_campaign_id: get(STORE.camp),
+        ab_variant: get("ck_ab_intro")
+      };
+    }
+  };
+  ourClickId();
+})();
 /* ============================================================
    CreditKeys — GA4 Analytics
    ============================================================
@@ -42,8 +105,14 @@ const GA_MEASUREMENT_ID = 'G-7QN1L27R85';
   // consistent instead of scattered gtag() calls with typo-able names.
   window.CKAnalytics = {
     track: function (eventName, params) {
-      if (typeof gtag === 'function') {
-        gtag('event', eventName, params || {});
+      if (typeof gtag === "function") {
+        // Merge attribution + A/B variant into every event so GA4 funnel data
+        // can be joined to a PerformCB conversion and split by test arm.
+        var merged = {};
+        var attr = (window.CKAttribution && window.CKAttribution.all) ? window.CKAttribution.all() : {};
+        for (var k in attr) { if (attr[k]) merged[k] = attr[k]; }
+        if (params) { for (var p in params) { merged[p] = params[p]; } }
+        gtag("event", eventName, merged);
       }
     }
   };
