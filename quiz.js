@@ -183,6 +183,14 @@ const CreditKeysQuiz = (function () {
     return a;
   }
 
+  // Chime is placed first whenever it is eligible. The remaining eligible
+  // offers keep the previous unbiased random tiebreak between themselves, so
+  // Kikoff and CreditStrong still rotate fairly against each other.
+  function orderOffers(eligible) {
+    var rest = shuffle(eligible.filter(function (k) { return k !== "chime"; }));
+    return eligible.indexOf("chime") !== -1 ? ["chime"].concat(rest) : rest;
+  }
+
   // Computed once per results render and reused for the email capture log,
   // so the "Best Match" badge shown on screen always matches what gets
   // recorded as the recommended offer — random tiebreak, but a CONSISTENT
@@ -217,7 +225,7 @@ const CreditKeysQuiz = (function () {
   };
 
   function renderResults() {
-    const eligible = shuffle(getEligibleOffers());
+    const eligible = orderOffers(getEligibleOffers());
     currentEligibleOrder = eligible; // lock in this session's order so email capture matches what's displayed
     const headline = document.getElementById('resultsHeadline');
     const sub = document.getElementById('resultsSub');
