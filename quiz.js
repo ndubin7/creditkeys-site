@@ -31,8 +31,22 @@ function getClickId() {
   return id;
 }
 
+// Builds the outbound affiliate URL.
+//   subid2 = our own session id; PerformCB returns it unchanged in the
+//            postback, so it is the join key back to this specific visit.
+//   subid1 = MGID's own click id. Needed so our postback receiver can report
+//            the conversion BACK to MGID; without it MGID never learns which
+//            clicks converted and cannot optimise delivery.
 function offerLinkWithClickId(offerKey) {
-  return OFFER_LINKS[offerKey] + getClickId();
+  var raw = OFFER_LINKS[offerKey];
+  if (!raw) return "#";
+  var base = raw.split(String.fromCharCode(63))[0];
+  var params = new URLSearchParams();
+  var mgidClick = (window.CKAttribution && window.CKAttribution.mgidClickId)
+    ? window.CKAttribution.mgidClickId() : "";
+  params.set("subid1", mgidClick || "direct");
+  params.set("subid2", getClickId());
+  return base + String.fromCharCode(63) + params.toString();
 }
 
 const CreditKeysQuiz = (function () {
@@ -54,9 +68,27 @@ const CreditKeysQuiz = (function () {
   // explicit ?entry=ad param on the ad campaign's destination URL, or a
   // referrer that isn't this site itself (a reasonable fallback signal for
   // ad clicks that don't carry the param).
+  // A/B TEST (Aug 2026). Launch data showed ~81% of ad visitors left the
+  // intro screen without a single interaction, because the only button sat
+  // ~920px down on a phone, well below the fold.
+  //   Variant A "intro"  = rebuilt compact intro, button above the fold
+  //   Variant B "direct" = skip the intro, land straight on question 1
+  // Random per visit, sticky for the session, reported to GA4 on every event.
+  function getVariant() {
+    var v = null;
+    try { v = sessionStorage.getItem("ck_ab_intro"); } catch (e) {}
+    if (!v) {
+      v = Math.random() < 0.5 ? "intro" : "direct";
+      try { sessionStorage.setItem("ck_ab_intro", v); } catch (e) {}
+    }
+    return v;
+  }
+
   function detectEntryStep() {
     const params = new URLSearchParams(window.location.search);
-    if (params.get('entry') === 'ad') return 0;
+    if (params.get("entry") === "ad") {
+      return getVariant() === "direct" ? 1 : 0;
+    }
     const ref = document.referrer;
     const cameFromThisSite = ref && ref.includes(window.location.hostname);
     if (ref && !cameFromThisSite) return 0; // arrived from an external link/ad
@@ -68,7 +100,7 @@ const CreditKeysQuiz = (function () {
     state.step = entryStep;
     goTo(entryStep);
     if (window.CKAnalytics) {
-      CKAnalytics.track('quiz_start', { entry_step: entryStep === 0 ? 'ad_trust_intro' : 'direct' });
+      CKAnalytics.track('quiz_start', { entry_step: entryStep === 0 ? 'ad_trust_intro' : 'direct', ab_variant: getVariant() });
     }
   }
 
