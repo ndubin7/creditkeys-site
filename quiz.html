@@ -31,6 +31,28 @@
    dark ink colour so the trust points are actually readable. */
 .quiz-step[data-step="0"] .hero-badge{color:var(--ink-soft);opacity:1;}
 @media (min-width:700px){.intro-thumb{width:96px;height:96px;flex-basis:96px;}.intro-title{font-size:1.7rem;}}
+
+/* --- Below-fold disclosure block (added Aug 2026) ---------------------
+   MGID rejected the campaign for "Insufficient information/description
+   regarding the offer." This sits BELOW the primary button so the
+   above-fold layout - and the fold fix that cut the 81% bounce - is
+   completely unchanged, while a moderator (or a careful visitor) who
+   scrolls gets the full picture of who we are and how we're paid. */
+.ck-about{max-width:640px;margin:56px auto 0;text-align:left;color:var(--ink-soft);font-size:0.95rem;line-height:1.65;}
+.ck-about hr{border:0;border-top:1px solid var(--slate-light);margin:0 0 36px;}
+.ck-about h3{font-family:'Space Grotesk','Inter',sans-serif;font-size:1.15rem;line-height:1.3;color:var(--ink);margin:34px 0 10px;}
+.ck-about h3:first-of-type{margin-top:0;}
+.ck-about h4{font-family:'Space Grotesk','Inter',sans-serif;font-size:0.98rem;color:var(--ink);margin:0 0 4px;}
+.ck-about p{margin:0 0 12px;color:var(--ink-soft);}
+.ck-about ol{margin:0 0 12px;padding-left:20px;}
+.ck-about li{margin-bottom:8px;color:var(--ink-soft);}
+.ck-about a{color:var(--brass);text-decoration:underline;}
+.ck-about strong{color:var(--ink);font-weight:600;}
+.ck-partner{background:var(--white);border:1px solid var(--slate-light);border-radius:var(--radius-sm);padding:16px 18px;margin-bottom:12px;}
+.ck-partner p:last-child{margin-bottom:0;}
+.ck-about-note{font-size:0.86rem;line-height:1.6;background:var(--paper-alt);border-radius:var(--radius-sm);padding:16px 18px;margin-top:28px;}
+.ck-about-note p:last-child{margin-bottom:0;}
+@media (max-width:480px){.ck-about{margin-top:44px;font-size:0.9rem;}.ck-about h3{font-size:1.05rem;}}
 </style>
 </head>
 <body>
@@ -76,7 +98,7 @@
   <div class="quiz-progress"><div class="quiz-progress-bar" id="progressBar"></div></div>
 
   <!-- STEP 0: Trust intro — only shown to cold ad traffic, see quiz.js -->
-  <div class="quiz-step" data-step="0">
+  <div class="quiz-step active" data-step="0">
     <div class="intro-row">
       <img src="assets/images/trust-image.jpg" alt="Person holding house keys, building credit toward homeownership" class="intro-thumb">
       <div class="intro-copy">
@@ -90,10 +112,58 @@
       <span class="hero-badge">✓ No credit check to see your options</span>
       <span class="hero-badge">✓ We compare, we don’t push one option</span>
     </div>
+
+    <section class="ck-about" aria-label="About CreditKeys">
+      <hr>
+
+      <h3>What CreditKeys is</h3>
+      <p>CreditKeys is a free, independent comparison service for credit-building products. We are not a lender, a bank, or a credit repair organization. We do not extend credit, hold your money, or change anything on your credit report.</p>
+      <p>What we do is narrow down a short list. There are dozens of credit-building products and most of them won't accept or suit any given person. Our four questions rule out the ones that would reject you or that you can't use, so you're not applying blind.</p>
+
+      <h3>How it works</h3>
+      <ol>
+        <li><strong>Answer four questions.</strong> Your phone number type, whether your credit file is frozen, whether you have an SSN or an ITIN, and your state. Every question is there because at least one provider turns people down based on that answer.</li>
+        <li><strong>We match you.</strong> We filter our partner list against your answers and show only what you're actually eligible for.</li>
+        <li><strong>You apply directly with the provider.</strong> Clicking a recommendation takes you to that company's own site. You apply with them, under their terms. CreditKeys is not part of that application.</li>
+      </ol>
+      <p>There is <strong>no credit check</strong> anywhere on CreditKeys, and taking the quiz does not affect your credit score.</p>
+
+      <h3>Who we compare</h3>
+      <p>These are the providers currently in our comparison set. Terms, fees and eligibility are set by each company and can change — always confirm current details on the provider's own site before applying.</p>
+
+      <div class="ck-partner">
+        <h4>Kikoff</h4>
+        <p>A revolving credit account built for establishing payment history, with no credit check to open. Kikoff reports account activity to the credit bureaus. Charged as a low monthly subscription.</p>
+      </div>
+
+      <div class="ck-partner">
+        <h4>CreditStrong</h4>
+        <p>Credit builder accounts issued by Austin Capital Bank. Your monthly payments go into a locked savings account and are reported to the bureaus as installment loan payments; you receive the savings balance at the end of the term. No credit check to open, and ITIN is accepted in place of an SSN.</p>
+      </div>
+
+      <div class="ck-partner">
+        <h4>Chime Credit Builder</h4>
+        <p>A secured Visa credit card with no annual fee, no interest and no minimum security deposit. No credit check to apply. It requires a Chime Checking Account with a qualifying direct deposit before the card can be used. Card activity is reported to the credit bureaus.</p>
+      </div>
+
+      <h3>What we ask for, and what we don't</h3>
+      <p>The quiz collects your four answers and, at the end, an email address so we can send your results. That's it.</p>
+      <p>We do <strong>not</strong> ask for or receive your Social Security Number, date of birth, bank details, income, or any payment information. Anything of that kind is collected by the provider you choose, on their own site, under their privacy policy — never by us.</p>
+      <p>How we handle what we do collect is set out in our <a href="/privacy">Privacy Policy</a>.</p>
+
+      <h3>How CreditKeys makes money</h3>
+      <p>CreditKeys is free to use. Our partners pay us a referral commission when someone we refer opens an account. That is how the site is funded, and it may influence which products appear and the order they're shown in. It does not change your eligibility results and it never costs you anything extra.</p>
+
+      <div class="ck-about-note">
+        <p><strong>Important:</strong> CreditKeys is an independent comparison service operated by Team Seven Marketing LLC. We are not a lender, a bank, a credit repair organization or a credit services organization, and nothing here is financial, legal or credit advice.</p>
+        <p>No product can remove accurate negative information from your credit report, and no one can guarantee a specific score increase. Results depend on your own payment behaviour and your wider credit profile.</p>
+        <p><a href="/privacy">Privacy Policy</a> &middot; <a href="/terms">Terms of Use</a> &middot; <a href="mailto:hello@creditkeys.online">hello@creditkeys.online</a></p>
+      </div>
+    </section>
   </div>
 
   <!-- STEP 1: Phone type -->
-  <div class="quiz-step active" data-step="1">
+  <div class="quiz-step" data-step="1">
     <span class="eyebrow">Find Your Fit</span>
     <h2>Is your phone number a regular mobile plan?</h2>
     <p class="quiz-sub">Some credit-building tools can't verify internet-based numbers (like Google Voice). This just helps us match you correctly, four quick questions, no credit check.</p>
