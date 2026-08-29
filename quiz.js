@@ -98,7 +98,8 @@ const CreditKeysQuiz = (function () {
   function detectEntryStep() {
     const params = new URLSearchParams(window.location.search);
     if (params.get("entry") === "ad") {
-      return 0; // ad traffic always gets the intro + offer disclosure
+      return 1; // straight to Q1 - the offer disclosure now sits below the quiz
+                // on every step, so no intro screen (and no extra click) is needed
     }
     const ref = document.referrer;
     const cameFromThisSite = ref && ref.includes(window.location.hostname);
