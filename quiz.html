@@ -38,8 +38,11 @@
    above-fold layout - and the fold fix that cut the 81% bounce - is
    completely unchanged, while a moderator (or a careful visitor) who
    scrolls gets the full picture of who we are and how we're paid. */
-.quiz-wrap{padding:40px 24px 28px;min-height:auto;}
-.ck-about{max-width:640px;margin:24px auto 0;padding:0 0 8px;text-align:left;color:var(--ink-soft);font-size:0.95rem;line-height:1.65;}
+.quiz-wrap{padding:24px 24px 24px;min-height:auto;}
+.quiz-progress{margin-bottom:24px;}
+/* iOS Safari colours <button> text system-blue unless told otherwise. */
+.quiz-option{color:var(--ink);-webkit-text-fill-color:var(--ink);}
+.ck-about{max-width:640px;margin:20px auto 0;padding:0 24px 8px;text-align:left;color:var(--ink-soft);font-size:0.95rem;line-height:1.65;}
 .ck-about hr{border:0;border-top:1px solid var(--slate-light);margin:0 0 18px;}
 .ck-about h3{font-family:'Space Grotesk','Inter',sans-serif;font-size:1.15rem;line-height:1.3;color:var(--ink);margin:34px 0 10px;}
 .ck-about h3:first-of-type{margin-top:0;}
@@ -210,46 +213,28 @@
     <hr>
 
     <h3>What CreditKeys is</h3>
-    <p>CreditKeys is a free, independent comparison service for credit-building products. We are not a lender, a bank, or a credit repair organization. We do not extend credit, hold your money, or change anything on your credit report.</p>
-    <p>What we do is narrow down a short list. There are dozens of credit-building products and most of them won't accept or suit any given person. Our four questions rule out the ones that would reject you or that you can't use, so you're not applying blind.</p>
-
-    <h3>How it works</h3>
-    <ol>
-      <li><strong>Answer four questions.</strong> Your phone number type, whether your credit file is frozen, whether you have an SSN or an ITIN, and your state. Every question is there because at least one provider turns people down based on that answer.</li>
-      <li><strong>We match you.</strong> We filter our partner list against your answers and show only what you're actually eligible for.</li>
-      <li><strong>You apply directly with the provider.</strong> Clicking a recommendation takes you to that company's own site. You apply with them, under their terms. CreditKeys is not part of that application.</li>
-    </ol>
-    <p>There is <strong>no credit check</strong> anywhere on CreditKeys, and taking the quiz does not affect your credit score.</p>
+    <p>CreditKeys is a free, independent comparison service for credit-building products. We are not a lender or a bank, we don't extend credit, and we never touch your credit report.</p>
+    <p>Four questions, no credit check. We rule out the products that would reject you, then you apply directly on the provider's own site, under their terms.</p>
 
     <h3>Who we compare</h3>
-    <p>These are the providers currently in our comparison set. Terms, fees and eligibility are set by each company and can change — always confirm current details on the provider's own site before applying.</p>
-
     <div class="ck-partner">
       <h4>Kikoff</h4>
-      <p>A revolving credit account built for establishing payment history, with no credit check to open. Kikoff reports account activity to the credit bureaus. Charged as a low monthly subscription.</p>
+      <p>A revolving credit account reported to the bureaus. No credit check to open, low monthly subscription.</p>
     </div>
-
     <div class="ck-partner">
       <h4>CreditStrong</h4>
-      <p>Credit builder accounts from Austin Capital Bank, an FDIC-insured bank. Your monthly payments go into a locked savings account and the account is reported to the bureaus. At the end of the term the principal portion of what you paid is returned to you, less any unpaid interest or fees. No credit check to open, and an ITIN is accepted in place of an SSN.</p>
+      <p>Credit builder accounts from Austin Capital Bank. Payments go into a locked savings account; at the end of the term the principal is returned, less unpaid interest and fees. ITIN accepted.</p>
     </div>
-
     <div class="ck-partner">
       <h4>Chime Credit Builder</h4>
-      <p>A secured Visa credit card with no annual fee, no interest and no minimum security deposit. No credit check to apply. You need an active Chime Checking Account to open one, and a qualifying direct deposit is what removes the deposit minimum. Card activity is reported to the credit bureaus.</p>
+      <p>A secured Visa card, no annual fee, no interest, no minimum deposit. Needs an active Chime Checking Account.</p>
     </div>
 
-    <h3>What we ask for, and what we don't</h3>
-    <p>The quiz collects your four answers and, at the end, an email address so we can send your results. That's it.</p>
-    <p>We do <strong>not</strong> ask for or receive your Social Security Number, date of birth, bank details, income, or any payment information. Anything of that kind is collected by the provider you choose, on their own site, under their privacy policy — never by us.</p>
-    <p>How we handle what we do collect is set out in our <a href="/privacy">Privacy Policy</a>.</p>
-
-    <h3>How CreditKeys makes money</h3>
-    <p>CreditKeys is free to use. Our partners pay us a referral commission when someone we refer opens an account. That is how the site is funded, and it may influence which products appear and the order they're shown in. It does not change your eligibility results and it never costs you anything extra.</p>
+    <h3>How we're paid</h3>
+    <p>Free to use. Our partners pay us a commission when someone we refer opens an account, which may affect which products show and in what order. It never costs you anything extra.</p>
 
     <div class="ck-about-note">
-      <p><strong>Important:</strong> CreditKeys is an independent comparison service operated by Team Seven Marketing LLC. We are not a lender, a bank, a credit repair organization or a credit services organization, and nothing here is financial, legal or credit advice.</p>
-      <p>No product can remove accurate negative information from your credit report, and no one can guarantee a specific score increase. Results depend on your own payment behaviour and your wider credit profile.</p>
+      <p>Operated by Team Seven Marketing LLC. Not a lender, bank, credit repair or credit services organization, and not financial advice. No product removes accurate negative information, and no one can guarantee a score increase.</p>
       <p><a href="/privacy">Privacy Policy</a> &middot; <a href="/terms">Terms of Use</a> &middot; <a href="mailto:hello@creditkeys.online">hello@creditkeys.online</a></p>
     </div>
   </section>
