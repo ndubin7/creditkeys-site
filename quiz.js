@@ -74,20 +74,31 @@ const CreditKeysQuiz = (function () {
   //   Variant A "intro"  = rebuilt compact intro, button above the fold
   //   Variant B "direct" = skip the intro, land straight on question 1
   // Random per visit, sticky for the session, reported to GA4 on every event.
+  // RETIRED Aug 2026. Variant "direct" is gone. MGID rejected the campaign
+  // with "Insufficient information/description regarding the offer" - the
+  // moderator was coin-flipped into "direct" and landed on a bare
+  // eligibility question with no explanation of who we are, what is being
+  // promoted, or how we are paid. That variant has no compliance story, so
+  // it cannot run at all. Everyone now gets the intro.
+  //
+  // The function is kept (rather than ripped out) so GA4's ab_variant
+  // dimension stays populated and pre/post-change data remains comparable
+  // in the same reports.
   function getVariant() {
-    var v = null;
-    try { v = sessionStorage.getItem("ck_ab_intro"); } catch (e) {}
-    if (!v) {
-      v = Math.random() < 0.5 ? "intro" : "direct";
-      try { sessionStorage.setItem("ck_ab_intro", v); } catch (e) {}
-    }
-    return v;
+    try {
+      // Overwrite any stale "direct" value left in a session that began
+      // before this change, so nobody is stranded on a retired variant.
+      if (sessionStorage.getItem("ck_ab_intro") !== "intro") {
+        sessionStorage.setItem("ck_ab_intro", "intro");
+      }
+    } catch (e) {}
+    return "intro";
   }
 
   function detectEntryStep() {
     const params = new URLSearchParams(window.location.search);
     if (params.get("entry") === "ad") {
-      return getVariant() === "direct" ? 1 : 0;
+      return 0; // ad traffic always gets the intro + offer disclosure
     }
     const ref = document.referrer;
     const cameFromThisSite = ref && ref.includes(window.location.hostname);
@@ -96,11 +107,18 @@ const CreditKeysQuiz = (function () {
   }
 
   function init() {
+    const isAdEntry = new URLSearchParams(window.location.search).get("entry") === "ad";
     const entryStep = detectEntryStep();
     state.step = entryStep;
     goTo(entryStep);
     if (window.CKAnalytics) {
-      CKAnalytics.track('quiz_start', { entry_step: entryStep === 0 ? 'ad_trust_intro' : 'direct', ab_variant: getVariant() });
+      // ab_variant is only meaningful for ad traffic - that is the only
+      // group the variant logic ever routed. Tagging homepage visitors too
+      // (the previous behaviour) put non-participants in the test dimension
+      // and skewed the split.
+      const payload = { entry_step: entryStep === 0 ? 'ad_trust_intro' : 'direct' };
+      if (isAdEntry) payload.ab_variant = getVariant();
+      CKAnalytics.track('quiz_start', payload);
     }
   }
 
