@@ -14,7 +14,7 @@
      ck_camp   = {campaign_id}  which campaign
    ---------------------------------------------------------------- */
 (function () {
-  var STORE = { click:"ck_mgid_click", ad:"ck_mgid_ad", widget:"ck_mgid_widget", camp:"ck_mgid_camp" };
+  var STORE = { click:"ck_mgid_click", ad:"ck_mgid_ad", widget:"ck_mgid_widget", camp:"ck_mgid_camp", lp:"ck_lp" };
 
   function params() {
     try { return new URLSearchParams(window.location.search); } catch (e) { return null; }
@@ -30,6 +30,10 @@
   stash("ck_ad", STORE.ad);
   stash("ck_widget", STORE.widget);
   stash("ck_camp", STORE.camp);
+  // Landing-page test arm (Aug 2026): "home" = ad pointed at the homepage,
+  // "quiz" = ad pointed straight at the quiz. Absent means quiz, so the
+  // ads already live and in moderation need no edit to stay comparable.
+  stash("lp", STORE.lp);
 
   function get(k){ try { return sessionStorage.getItem(k) || ""; } catch(e){ return ""; } }
 
@@ -55,7 +59,8 @@
         mgid_ad_id: get(STORE.ad),
         mgid_widget_id: get(STORE.widget),
         mgid_campaign_id: get(STORE.camp),
-        ab_variant: get("ck_ab_intro")
+        ab_variant: get("ck_ab_intro"),
+        landing_variant: get(STORE.lp) || "quiz"
       };
     }
   };
