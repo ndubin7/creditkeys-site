@@ -136,6 +136,19 @@ const CreditKeysQuiz = (function () {
 
   function init() {
     const isAdEntry = new URLSearchParams(window.location.search).get("entry") === "ad";
+
+    // A/B: half of visitors get the offer list instead of the quiz. Served at
+    // this same URL so the ads already in moderation stay valid and no
+    // re-moderation is triggered.
+    const pageVariant = getPageVariant();
+    if (pageVariant === 'list') {
+      renderOfferList();
+      if (window.CKAnalytics) {
+        CKAnalytics.track('quiz_start', { entry_step: 'offer_list', page_variant: 'list' });
+      }
+      return;
+    }
+
     const entryStep = detectEntryStep();
     state.step = entryStep;
     goTo(entryStep);
@@ -144,7 +157,7 @@ const CreditKeysQuiz = (function () {
       // group the variant logic ever routed. Tagging homepage visitors too
       // (the previous behaviour) put non-participants in the test dimension
       // and skewed the split.
-      const payload = { entry_step: entryStep === 0 ? 'ad_trust_intro' : 'direct' };
+      const payload = { entry_step: entryStep === 0 ? 'ad_trust_intro' : 'direct', page_variant: 'quiz' };
       if (isAdEntry) payload.ab_variant = getVariant();
       CKAnalytics.track('quiz_start', payload);
     }
@@ -308,6 +321,100 @@ const CreditKeysQuiz = (function () {
         </div>
       `;
     }).join('');
+  }
+
+
+  // ---------- LIST VARIANT (Aug 2026 A/B) ----------
+  // Hypothesis: our traffic arrives from recipe and lifestyle content in
+  // browsing mode, and a four-question quiz asks for commitment before
+  // giving anything back - hence 78% of sessions never touching a control
+  // and an 11-second average engagement time. This arm shows every offer
+  // straight away and states each one's eligibility rules as bullets, so
+  // the visitor self-qualifies by reading.
+  //
+  // The pre-qualification logic is NOT dropped, it is surfaced. Every rule
+  // enforced by getEligibleOffers() appears here as a visible fact, so a
+  // VOIP-number or credit-frozen visitor can rule Kikoff out themselves
+  // instead of being silently routed away from it.
+  const OFFER_FACTS = {
+    creditstrong: [
+      { t: 'ok',   s: 'Accepts an ITIN if you do not have an SSN' },
+      { t: 'ok',   s: 'No credit check and no credit history needed' },
+      { t: 'ok',   s: 'Works with a credit freeze in place' },
+      { t: 'no',   s: 'Not available in Vermont or Wisconsin' },
+      { t: 'warn', s: 'Money is locked in savings until the term ends' }
+    ],
+    kikoff: [
+      { t: 'ok',   s: 'No credit check to open' },
+      { t: 'ok',   s: 'Lowest monthly cost of the three' },
+      { t: 'no',   s: 'Needs a regular mobile number - Google Voice and other internet numbers are rejected' },
+      { t: 'no',   s: 'Cannot be opened while a credit freeze is active' },
+      { t: 'no',   s: 'Requires an SSN, and is not available in Delaware or Indiana' }
+    ],
+    chime: [
+      { t: 'ok',   s: 'No credit check and no monthly fee' },
+      { t: 'ok',   s: 'Available in every state' },
+      { t: 'ok',   s: 'Builds credit through normal spending, with no separate loan' },
+      { t: 'warn', s: 'Needs a Chime account with a qualifying direct deposit' },
+      { t: 'no',   s: 'Requires an SSN' }
+    ]
+  };
+
+  const FACT_ICON = { ok: '\u2713', warn: '!', no: '\u2715' };
+
+  function renderOfferList() {
+    const host = document.getElementById('ckList');
+    if (!host) return;
+
+    // Fixed order: CreditStrong first because it is the only option with no
+    // SSN requirement, so it is the one that works for the widest audience.
+    const order = ['creditstrong', 'chime', 'kikoff'];
+
+    host.innerHTML =
+      '<div class="ck-list-intro">' +
+        '<h1>Three ways to start building credit</h1>' +
+        '<p>Each one has different requirements. The details below tell you which will actually accept you, so you are not applying blind.</p>' +
+      '</div>' +
+      order.map(function (key, i) {
+        const o = OFFER_CONTENT[key];
+        const facts = (OFFER_FACTS[key] || []).map(function (f) {
+          return '<li><span class="ic ' + f.t + '">' + FACT_ICON[f.t] + '</span><span>' + f.s + '</span></li>';
+        }).join('');
+        const logoHtml = o.logoIsText
+          ? '<div class="brand-logo text-logo" style="color:' + o.logoColor + ';">' + o.name + '</div>'
+          : '<img src="' + o.logo + '" alt="' + o.name + ' logo">';
+        return '' +
+          '<div class="ck-offer">' +
+            '<div class="ck-offer-head">' + logoHtml + '</div>' +
+            '<p class="ck-offer-blurb">' + o.blurb + '</p>' +
+            '<p class="ck-offer-price">' + o.price + '</p>' +
+            '<ul class="ck-facts">' + facts + '</ul>' +
+            '<a href="' + offerLinkWithClickId(key) + '" class="btn btn-primary" ' +
+              'onclick="return trackOfferClick(\'' + key + '\', ' + (i + 1) + ')">' +
+              'Start with ' + o.name + '</a>' +
+            '<p class="disclaimer">' + o.disclaimer + '</p>' +
+          '</div>';
+      }).join('');
+
+    host.hidden = false;
+    document.querySelectorAll('.quiz-step').forEach(function (s) { s.classList.remove('active'); });
+    const prog = document.querySelector('.quiz-progress');
+    if (prog) prog.style.display = 'none';
+
+    if (window.CKAnalytics) {
+      CKAnalytics.track('offer_list_viewed', { offers_shown: order.join(',') });
+    }
+  }
+
+  // 50/50, sticky for the whole session so a visitor never flips arm mid-visit.
+  function getPageVariant() {
+    var v = null;
+    try { v = sessionStorage.getItem('ck_ab_page'); } catch (e) {}
+    if (v !== 'list' && v !== 'quiz') {
+      v = Math.random() < 0.5 ? 'list' : 'quiz';
+      try { sessionStorage.setItem('ck_ab_page', v); } catch (e) {}
+    }
+    return v;
   }
 
   // ---------- Email capture → Google Sheets ----------
