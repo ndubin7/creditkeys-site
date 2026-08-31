@@ -49,7 +49,34 @@ function offerLinkWithClickId(offerKey) {
   return base + String.fromCharCode(63) + params.toString();
 }
 
+// Fires the GA4 offer_clickout event and records where this tap sits in the
+// visitor's session. GA4 counts every tap; PerformCB only counts clicks that
+// reach its server and dedupes them. Without knowing how many taps came from
+// the same person the two numbers can't be reconciled - which is exactly the
+// gap we hit (11 GA4 click-outs vs 4 PerformCB clicks). clickout_seq = 1 is
+// this visitor's first offer tap, so counting seq==1 events gives a figure
+// directly comparable to PerformCB's click count.
+function trackOfferClick(offerKey, position) {
+  var seq = 1;
+  try {
+    seq = parseInt(sessionStorage.getItem("ck_clickout_seq") || "0", 10) + 1;
+    sessionStorage.setItem("ck_clickout_seq", String(seq));
+  } catch (e) {}
+  if (window.CKAnalytics) {
+    CKAnalytics.track("offer_clickout", {
+      offer_name: offerKey,
+      source: "quiz_results",
+      click_id: getClickId(),
+      offer_position: position,
+      clickout_seq: seq,
+      is_repeat_clickout: seq > 1
+    });
+  }
+  return true; // never block the outbound navigation
+}
+
 const CreditKeysQuiz = (function () {
+
   const state = {
     step: 1,
     answers: {
@@ -276,7 +303,7 @@ const CreditKeysQuiz = (function () {
           ${logoHtml}
           <p style="margin:12px 0;">${o.blurb}</p>
           <p style="font-weight:600;color:var(--ink);margin-bottom:14px;">${o.price}</p>
-          <a href="${offerLinkWithClickId(key)}" class="btn btn-primary" style="width:100%;" onclick="CKAnalytics.track('offer_clickout', {offer_name: '${key}', source: 'quiz_results', click_id: getClickId()})">See If You Qualify</a>
+          <a href="${offerLinkWithClickId(key)}" class="btn btn-primary" style="width:100%;" onclick="return trackOfferClick('${key}', ${i + 1})">See If You Qualify</a>
           <p class="disclaimer" style="margin-top:14px;">${o.disclaimer}</p>
         </div>
       `;
