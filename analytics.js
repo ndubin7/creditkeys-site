@@ -121,4 +121,64 @@ const GA_MEASUREMENT_ID = 'G-7QN1L27R85';
       }
     }
   };
+
+  // ---------- Passive engagement signals (Aug 2026) ----------
+  // Until now the only engagement event was quiz_question_answered, which has
+  // two problems. First, it does not exist in the offer-list arm, so that arm
+  // would have scored 0% interaction and the A/B test would have been
+  // unreadable. Second, it cannot separate "bounced in two seconds" from
+  // "read the page and decided against it" - opposite problems needing
+  // opposite fixes. GA4 reported an 11-second average engagement time without
+  // telling us which of those it was.
+  //
+  // These three fire on any page regardless of arm, so both sides of the test
+  // are measured on the same footing:
+  //   page_engaged  - stayed 10s+ (a read, not a bounce)
+  //   scroll_depth  - reached 50% and 90% of the page
+  //   page_exit     - dwell time in seconds, sent via sendBeacon so it
+  //                   survives the browser unloading the page
+  function initEngagementSignals() {
+    var start = Date.now();
+    var fired = {};
+
+    function once(name, params) {
+      if (fired[name]) return;
+      fired[name] = true;
+      window.CKAnalytics.track(name, params || {});
+    }
+
+    // A visitor still present after 10s has read something. This is the
+    // closest honest proxy for "considered it" that does not need a click.
+    setTimeout(function () { once('page_engaged', { threshold_seconds: 10 }); }, 10000);
+
+    function onScroll() {
+      var doc = document.documentElement;
+      var scrollable = doc.scrollHeight - window.innerHeight;
+      if (scrollable <= 0) return;
+      var pct = (window.pageYOffset || doc.scrollTop) / scrollable;
+      if (pct >= 0.5) once('scroll_depth', { depth: 50 });
+      if (pct >= 0.9) {
+        once('scroll_depth_90', { depth: 90 });
+        window.removeEventListener('scroll', onScroll);
+      }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    // pagehide is more reliable than beforeunload on mobile Safari, which is
+    // the overwhelming majority of this traffic.
+    window.addEventListener('pagehide', function () {
+      if (fired.page_exit) return;
+      fired.page_exit = true;
+      var seconds = Math.round((Date.now() - start) / 1000);
+      // GA4's transport already uses sendBeacon internally for this case,
+      // so no separate endpoint is needed.
+      window.CKAnalytics.track('page_exit', { dwell_seconds: seconds });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initEngagementSignals);
+  } else {
+    initEngagementSignals();
+  }
 })();
