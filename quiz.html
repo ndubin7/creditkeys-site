@@ -57,6 +57,34 @@
 .ck-about-note{font-size:0.86rem;line-height:1.6;background:var(--paper-alt);border-radius:var(--radius-sm);padding:16px 18px;margin-top:28px;}
 .ck-about-note p:last-child{margin-bottom:0;}
 @media (max-width:480px){.ck-about{margin-top:20px;font-size:0.9rem;}.ck-about h3{font-size:1.05rem;}}
+
+/* --- List variant (Aug 2026 A/B) --------------------------------------
+   Alternative to the quiz: every offer shown immediately with its own
+   eligibility rules stated as bullets, so the visitor self-qualifies by
+   reading instead of answering four questions first. Targets the 11-second
+   bounce - offers are clickable in seconds rather than after four steps. */
+.ck-list{max-width:640px;margin:0 auto;padding:0 24px 8px;}
+.ck-list-intro{text-align:center;margin-bottom:26px;}
+.ck-list-intro h1{font-family:'Space Grotesk','Inter',sans-serif;font-size:1.6rem;line-height:1.25;color:var(--ink);margin:0 0 10px;}
+.ck-list-intro p{color:var(--ink-soft);font-size:0.95rem;line-height:1.6;margin:0;}
+.ck-offer{background:var(--white);border:1px solid var(--slate-light);border-radius:var(--radius);padding:20px;margin-bottom:16px;}
+.ck-offer-head{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+.ck-offer-head img{height:26px;width:auto;}
+.ck-offer-blurb{color:var(--ink-soft);font-size:0.95rem;line-height:1.55;margin:0 0 12px;}
+.ck-offer-price{font-weight:600;color:var(--ink);font-size:0.95rem;margin:0 0 14px;}
+.ck-facts{list-style:none;margin:0 0 16px;padding:0;}
+.ck-facts li{display:flex;gap:9px;align-items:flex-start;font-size:0.9rem;line-height:1.5;color:var(--ink-soft);margin-bottom:7px;}
+.ck-facts .ic{flex:0 0 auto;font-size:0.95rem;line-height:1.45;}
+.ck-facts .ok{color:#1F7A4D;}
+.ck-facts .warn{color:#B4741A;}
+.ck-facts .no{color:#A8322B;}
+.ck-offer .btn{width:100%;}
+.ck-offer .disclaimer{margin-top:12px;}
+@media (max-width:480px){
+  .ck-list{padding:0 20px 8px;}
+  .ck-list-intro h1{font-size:1.4rem;}
+  .ck-offer{padding:17px;}
+}
 </style>
 </head>
 <body>
@@ -98,6 +126,11 @@
 </header>
 
 <div class="quiz-wrap">
+
+  <!-- List variant target. Populated by renderOfferList() only when the
+       visitor is in the "list" arm; the quiz steps below stay hidden. -->
+  <section id="ckList" class="ck-list" hidden aria-label="Credit-building options"></section>
+
 
   <div class="quiz-progress"><div class="quiz-progress-bar" id="progressBar"></div></div>
 
