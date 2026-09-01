@@ -38,15 +38,22 @@ function getClickId() {
 //            the conversion BACK to MGID; without it MGID never learns which
 //            clicks converted and cannot optimise delivery.
 function offerLinkWithClickId(offerKey) {
-  var raw = OFFER_LINKS[offerKey];
-  if (!raw) return "#";
-  var base = raw.split(String.fromCharCode(63))[0];
-  var params = new URLSearchParams();
+  if (!OFFER_LINKS[offerKey]) return "#";
   var mgidClick = (window.CKAttribution && window.CKAttribution.mgidClickId)
     ? window.CKAttribution.mgidClickId() : "";
+  // Route through /go.html rather than linking straight to noklnk.com.
+  // MGID's Sensor pixel only fires on a page load on our own domain, so an
+  // outbound link was invisible to it and the campaign's conversion goal was
+  // stuck on "quiz.html page view" - which counts every landing and makes
+  // MGID optimise for the cheapest page-loader it can find. /go.html fires
+  // the Sensor and forwards on, so the goal can be pointed at a URL only a
+  // real offer click reaches. Attribution is unchanged: subid1/subid2 are
+  // passed through and reattached to the affiliate URL by go.html.
+  var params = new URLSearchParams();
+  params.set("offer", offerKey);
   params.set("subid1", mgidClick || "direct");
   params.set("subid2", getClickId());
-  return base + String.fromCharCode(63) + params.toString();
+  return "/go.html" + String.fromCharCode(63) + params.toString();
 }
 
 // Fires the GA4 offer_clickout event and records where this tap sits in the
