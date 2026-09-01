@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Taking you there…</title>
+<!--
+  INTERSTITIAL REDIRECT — exists so MGID can count an offer click-out.
+
+  MGID's Sensor pixel only fires on a page load on our own domain. The
+  outbound offer link goes straight to noklnk.com, which MGID never sees, so
+  there was no way to build a conversion goal on the thing that actually
+  matters. The campaign goal was therefore stuck on "quiz.html page view",
+  which counts every landing as a conversion and optimises for the cheapest
+  possible page-loader.
+
+  This page loads for a moment, fires the Sensor, then forwards to the real
+  affiliate URL. The MGID goal points at "/go.html", so a conversion now means
+  "someone actually clicked through to an offer".
+
+  Design notes:
+  - Redirect waits ~450ms. Long enough for the Sensor request to leave the
+    browser, short enough that the visitor barely registers it.
+  - There is also a <noscript> meta refresh, so a visitor with JS disabled
+    still reaches the offer (they just will not be counted).
+  - Offer keys are resolved against a whitelist, never by taking a URL from
+    the query string, so this page cannot be turned into an open redirect.
+  - subid1/subid2 are passed straight through from the calling page rather
+    than regenerated, so attribution stays identical to the direct link.
+-->
+<style>
+  :root { --ink:#14213D; --ink-soft:#3C4A66; --bg:#FAF8F5; --brand:#1F7A4D; }
+  * { box-sizing:border-box; }
+  body {
+    margin:0; min-height:100vh; display:flex; align-items:center;
+    justify-content:center; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    text-align:center; padding:24px;
+  }
+  .wrap { max-width:340px; }
+  .spinner {
+    width:34px; height:34px; margin:0 auto 20px;
+    border:3px solid rgba(31,122,77,0.18); border-top-color:var(--brand);
+    border-radius:50%; animation:spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  h1 { font-size:1.05rem; font-weight:600; margin:0 0 8px; }
+  p  { font-size:0.88rem; color:var(--ink-soft); line-height:1.5; margin:0; }
+  a  { color:var(--brand); }
+  @media (prefers-reduced-motion:reduce) { .spinner { animation:none; } }
+</style>
+</head>
+<body>
+
+<!-- Mgid Sensor — identical to the block on quiz.html and index.html. This is
+     the whole point of the page: it fires here, on a URL that only a real
+     offer click can reach. -->
+<script type="text/javascript">
+    (function() {
+        var d = document, w = window;
+        w.MgSensorData = w.MgSensorData || [];
+        w.MgSensorData.push({
+            cid:988264,
+            project: "a.mgid.com"
+        });
+        var l = "a.mgid.com";
+        var n = d.getElementsByTagName("script")[0];
+        var s = d.createElement("script");
+        s.type = "text/javascript";
+        s.async = true;
+        var dt = !Date.now?new Date().valueOf():Date.now();
+        s.src = "https://" + l + "/mgsensor.js?d=" + dt;
+        n.parentNode.insertBefore(s, n);
+    })();
+</script>
+<!-- /Mgid Sensor -->
+
+<div class="wrap">
+  <div class="spinner" role="status" aria-label="Loading"></div>
+  <h1>Taking you to the offer…</h1>
+  <p>One moment. If nothing happens, <a id="manual" href="#">tap here to continue</a>.</p>
+</div>
+
+<script src="analytics.js"></script>
+<script>
+(function () {
+  // Whitelist. The destination is NEVER read from the query string - only an
+  // offer key is accepted, and anything unrecognised falls back to the
+  // homepage. This keeps the page from becoming an open redirect that a
+  // third party could abuse to launder traffic through our domain.
+  var OFFER_LINKS = {
+    kikoff:       'https://noklnk.com/x/6041347',
+    creditstrong: 'https://noklnk.com/x/6041278',
+    chime:        'https://noklnk.com/x/6041339'
+  };
+
+  var q      = new URLSearchParams(window.location.search);
+  var offer  = (q.get('offer') || '').toLowerCase();
+  var subid1 = q.get('subid1') || 'direct';
+  var subid2 = q.get('subid2') || '';
+  var base   = OFFER_LINKS[offer];
+
+  // Unknown or missing offer key: send them somewhere sensible rather than
+  // leaving them staring at a spinner forever.
+  var dest;
+  if (base) {
+    var p = new URLSearchParams();
+    p.set('subid1', subid1);
+    p.set('subid2', subid2);
+    dest = base + '?' + p.toString();
+  } else {
+    dest = '/';
+  }
+
+  document.getElementById('manual').href = dest;
+
+  if (window.CKAnalytics) {
+    window.CKAnalytics.track('offer_redirect', {
+      offer_name: offer || 'unknown',
+      valid_offer: !!base,
+      click_id: subid2
+    });
+  }
+
+  // Give the Sensor request time to leave the browser before we navigate
+  // away. replace() keeps this page out of history, so Back returns the
+  // visitor to the offer list rather than bouncing them through here again.
+  setTimeout(function () { window.location.replace(dest); }, 450);
+})();
+</script>
+
+<noscript>
+  <meta http-equiv="refresh" content="0;url=/">
+  <p>JavaScript is required to continue. <a href="/">Return to CreditKeys</a>.</p>
+</noscript>
+
+</body>
+</html>
