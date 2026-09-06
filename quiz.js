@@ -63,7 +63,7 @@ function offerLinkWithClickId(offerKey) {
 // gap we hit (11 GA4 click-outs vs 4 PerformCB clicks). clickout_seq = 1 is
 // this visitor's first offer tap, so counting seq==1 events gives a figure
 // directly comparable to PerformCB's click count.
-function trackOfferClick(offerKey, position) {
+function trackOfferClick(offerKey, position, source) {
   var seq = 1;
   try {
     seq = parseInt(sessionStorage.getItem("ck_clickout_seq") || "0", 10) + 1;
@@ -72,7 +72,11 @@ function trackOfferClick(offerKey, position) {
   if (window.CKAnalytics) {
     CKAnalytics.track("offer_clickout", {
       offer_name: offerKey,
-      source: "quiz_results",
+      // Which control produced the click. Inline card buttons and the sticky
+      // mobile bar are separate placements, so lumping them together would
+      // hide whether the sticky bar is earning its space or just cannibalising
+      // clicks that would have happened anyway.
+      source: source || "offer_card",
       click_id: getClickId(),
       offer_position: position,
       clickout_seq: seq,
@@ -148,10 +152,14 @@ const CreditKeysQuiz = (function () {
     // this same URL so the ads already in moderation stay valid and no
     // re-moderation is triggered.
     const pageVariant = getPageVariant();
-    if (pageVariant === 'list') {
-      renderOfferList();
+    if (pageVariant === 'list' || pageVariant === 'chime') {
+      if (pageVariant === 'chime') { renderChimeOnly(); } else { renderOfferList(); }
       if (window.CKAnalytics) {
-        CKAnalytics.track('quiz_start', { entry_step: 'offer_list', page_variant: 'list' });
+        // quiz_start is the shared session-start event across all arms, so
+        // every arm stays comparable on the same denominator.
+        CKAnalytics.track('quiz_start', {
+          entry_step: pageVariant === 'chime' ? 'chime_only' : 'offer_list'
+        });
       }
       return;
     }
@@ -403,36 +411,146 @@ const CreditKeysQuiz = (function () {
             (isLead ? 'btn-primary' : 'btn-outline') + '" ' +
             'onclick="return trackOfferClick(\'' + key + '\', ' + position + ')">' +
             (isLead ? 'Get started with ' + o.name : 'Choose ' + o.name) + '</a>' +
-          '<p class="disclaimer">' + o.disclaimer + '</p>' +
         '</div>';
     }
 
     host.innerHTML =
       '<div class="ck-list-intro">' +
         '<h1>Start building credit this week</h1>' +
-        '<p>Three options, no credit check on any of them. The details below tell you which will actually accept you, so you are not applying blind.</p>' +
+        '<p class="ck-anchor">No credit check on any of them. From $0 a month.</p>' +
+        '<p>The details below tell you which will actually accept you, so you are not applying blind.</p>' +
       '</div>' +
       card(LEAD, 1, true) +
       '<div class="ck-alt-head">If ' + OFFER_CONTENT[LEAD].name + ' is not a fit</div>' +
-      REST.map(function (k, i) { return card(k, i + 2, false); }).join('');
+      REST.map(function (k, i) { return card(k, i + 2, false); }).join('') +
+      disclaimerBlock([LEAD].concat(REST)) +
+      stickyBar(LEAD, 'Get started with ' + OFFER_CONTENT[LEAD].name);
 
     host.hidden = false;
     host.hidden = false;
     document.querySelectorAll('.quiz-step').forEach(function (s) { s.classList.remove('active'); });
     const prog = document.querySelector('.quiz-progress');
     if (prog) prog.style.display = 'none';
+    initStickyBar();
 
     if (window.CKAnalytics) {
-      CKAnalytics.track('offer_list_viewed', { offers_shown: [LEAD].concat(REST).join(','), lead_offer: LEAD });
+      CKAnalytics.track('offer_list_viewed', {
+        offers_shown: [LEAD].concat(REST).join(','), lead_offer: LEAD, layout: 'lead_plus_alternatives'
+      });
     }
   }
 
-  // 50/50, sticky for the whole session so a visitor never flips arm mid-visit.
+  // Three arms, evenly split, sticky for the session so a visitor never flips
+  // mid-visit. 'chime' shows a single offer with no comparison at all - the
+  // strongest available test of whether choice itself is suppressing click-outs,
+  // since Chime is also the only offer whose payout maths closes at the rate we
+  // currently measure.
+
+  // Sticky bar, mobile only (hidden by CSS above 640px). Traffic is roughly
+  // 5x mobile, and on a phone the primary button scrolls out of view as soon
+  // as the visitor reads the eligibility bullets - so the moment they decide,
+  // there is nothing to tap. The bar keeps one action permanently reachable.
+  // It is rendered hidden and revealed only once the inline button has
+  // scrolled past, so it never competes with the button it duplicates.
+  function stickyBar(offerKey, label) {
+    return '' +
+      '<div class="ck-sticky" id="ckSticky" hidden>' +
+        '<a href="' + offerLinkWithClickId(offerKey) + '" class="btn btn-primary" ' +
+          'onclick="return trackOfferClick(\'' + offerKey + '\', 1, \'sticky_bar\')">' +
+          label + '</a>' +
+      '</div>';
+  }
+
+  function initStickyBar() {
+    var bar = document.getElementById('ckSticky');
+    var anchor = document.querySelector('.ck-offer-lead .btn, .ck-solo .btn');
+    if (!bar || !anchor) return;
+    var shown = false;
+    function check() {
+      var past = anchor.getBoundingClientRect().bottom < 0;
+      if (past === shown) return;
+      shown = past;
+      bar.hidden = !past;
+      if (past && window.CKAnalytics) {
+        CKAnalytics.track('sticky_cta_shown', {});
+      }
+    }
+    window.addEventListener('scroll', check, { passive: true });
+    check();
+  }
+
+  // Disclaimers are required but they are also the least persuasive text on
+  // the page, and sitting directly under the button they dampen the click they
+  // are attached to. Collected into one block at the foot of the page instead:
+  // still present and still attributed per offer, just not wedged between the
+  // visitor and the action.
+  function disclaimerBlock(keys) {
+    return '' +
+      '<section class="ck-legal">' +
+        keys.map(function (k) {
+          var o = OFFER_CONTENT[k];
+          return '<p><strong>' + o.name + ':</strong> ' + o.disclaimer + '</p>';
+        }).join('') +
+        '<p class="ck-legal-note">CreditKeys is a comparison service and may earn a commission ' +
+        'when you open an account through our links. This does not affect what you pay.</p>' +
+      '</section>';
+  }
+
+  // Chime-only arm: one offer, no comparison, no alternatives.
+  function renderChimeOnly() {
+    const host = document.getElementById('ckList');
+    if (!host) return;
+    const key = 'chime';
+    const o = OFFER_CONTENT[key];
+    const facts = (OFFER_FACTS[key] || []).map(function (f) {
+      return '<li><span class="ic ' + f.t + '">' + FACT_ICON[f.t] + '</span><span>' + f.s + '</span></li>';
+    }).join('');
+    const logoHtml = o.logoIsText
+      ? '<div class="brand-logo text-logo" style="color:' + o.logoColor + ';">' + o.name + '</div>'
+      : '<img src="' + o.logo + '" alt="' + o.name + ' logo">';
+
+    host.innerHTML =
+      '<div class="ck-list-intro">' +
+        '<h1>Build credit with the account you already get paid into</h1>' +
+        '<p class="ck-anchor">No credit check. No monthly fee. No separate loan.</p>' +
+      '</div>' +
+      '<div class="ck-offer ck-solo">' +
+        '<div class="ck-offer-head">' + logoHtml + '</div>' +
+        '<p class="ck-offer-blurb">' + o.blurb + '</p>' +
+        '<ul class="ck-facts">' + facts + '</ul>' +
+        '<a href="' + offerLinkWithClickId(key) + '" class="btn btn-primary" ' +
+          'onclick="return trackOfferClick(\'' + key + '\', 1, \'offer_card\')">' +
+          'Get started with ' + o.name + '</a>' +
+      '</div>' +
+      '<div class="ck-steps">' +
+        '<h2>How it works</h2>' +
+        '<ol>' +
+          '<li>Open a Chime account. It is free and there is no credit check.</li>' +
+          '<li>Have your pay deposited into it, $200 or more.</li>' +
+          '<li>Spend as you normally would. Your activity is reported to the credit bureaus.</li>' +
+        '</ol>' +
+      '</div>' +
+      disclaimerBlock([key]) +
+      stickyBar(key, 'Get started with ' + o.name);
+
+    host.hidden = false;
+    document.querySelectorAll('.quiz-step').forEach(function (s) { s.classList.remove('active'); });
+    const prog = document.querySelector('.quiz-progress');
+    if (prog) prog.style.display = 'none';
+    initStickyBar();
+
+    if (window.CKAnalytics) {
+      CKAnalytics.track('offer_list_viewed', { offers_shown: key, lead_offer: key, layout: 'single_offer' });
+    }
+  }
+
+  const AB_ARMS = ['quiz', 'list', 'chime'];
+
   function getPageVariant() {
     var v = null;
     try { v = sessionStorage.getItem('ck_ab_page'); } catch (e) {}
-    if (v !== 'list' && v !== 'quiz') {
-      v = Math.random() < 0.5 ? 'list' : 'quiz';
+    if (AB_ARMS.indexOf(v) === -1) {
+      v = AB_ARMS[Math.floor(Math.random() * AB_ARMS.length)];
       try { sessionStorage.setItem('ck_ab_page', v); } catch (e) {}
     }
     return v;
