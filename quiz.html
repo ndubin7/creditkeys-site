@@ -86,6 +86,31 @@
    filled button and the other two drop to outline buttons under a divider,
    so there is one obvious action and two fallbacks rather than a three-way
    decision. */
+/* --- Chime-only arm, sticky mobile CTA, below-fold legal (Sep 2026) ------
+   Three changes aimed at click-out rate:
+   1. .ck-anchor puts the cost/no-credit-check fact directly under the H1,
+      where it can be read in the two seconds most visitors give the page.
+   2. .ck-sticky keeps one action reachable on mobile after the inline button
+      scrolls away. Hidden above 640px - desktop never loses the button.
+   3. .ck-legal moves required disclaimers off the button and to the foot of
+      the page. Still present, still per-offer, no longer sitting between the
+      visitor and the click. */
+.ck-anchor{font-size:1rem;font-weight:600;color:var(--ink);margin:0 0 8px;}
+.ck-list-intro p:last-child{margin:0;}
+.ck-solo{border-color:var(--brass);box-shadow:0 4px 18px rgba(184,134,62,0.13);}
+.ck-steps{margin:26px 0 4px;padding:20px;background:var(--paper-alt);border-radius:var(--radius);}
+.ck-steps h2{font-family:'Space Grotesk','Inter',sans-serif;font-size:1.05rem;margin:0 0 12px;color:var(--ink);}
+.ck-steps ol{margin:0;padding-left:20px;}
+.ck-steps li{font-size:0.92rem;line-height:1.55;color:var(--ink-soft);margin-bottom:9px;}
+.ck-steps li:last-child{margin-bottom:0;}
+.ck-legal{margin-top:30px;padding-top:18px;border-top:1px solid var(--slate-light);}
+.ck-legal p{font-size:0.72rem;line-height:1.5;color:var(--ink-soft);opacity:0.85;margin:0 0 10px;}
+.ck-legal-note{font-style:italic;}
+.ck-sticky{position:fixed;left:0;right:0;bottom:0;z-index:60;padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:rgba(255,255,255,0.97);border-top:1px solid var(--slate-light);box-shadow:0 -4px 18px rgba(20,33,61,0.10);}
+.ck-sticky .btn{width:100%;margin:0;}
+.ck-sticky[hidden]{display:none;}
+@media (min-width:641px){ .ck-sticky{display:none !important;} }
+@media (max-width:640px){ .ck-list{padding-bottom:88px;} }
 .ck-offer-lead{border-color:var(--brass);box-shadow:0 4px 18px rgba(184,134,62,0.13);}
 .ck-badge{display:inline-block;background:var(--brass);color:var(--white);font-size:0.72rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;padding:4px 10px;border-radius:999px;margin-bottom:12px;}
 .ck-alt-head{font-size:0.85rem;font-weight:600;color:var(--ink-soft);text-align:center;margin:26px 0 14px;position:relative;}
