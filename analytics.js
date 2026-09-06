@@ -116,6 +116,18 @@ const GA_MEASUREMENT_ID = 'G-7QN1L27R85';
         var merged = {};
         var attr = (window.CKAttribution && window.CKAttribution.all) ? window.CKAttribution.all() : {};
         for (var k in attr) { if (attr[k]) merged[k] = attr[k]; }
+
+        // The A/B arm is read straight from sessionStorage here rather than
+        // being passed in by each caller. The previous version only tagged
+        // quiz_start, so offer_clickout - the metric the whole experiment
+        // exists to compare - carried no arm marker and the first six days of
+        // the test could not be split by variant at all. Reading it centrally
+        // means every event is taggable and no future call site can forget.
+        try {
+          var v = sessionStorage.getItem("ck_ab_page");
+          if (v) merged.page_variant = v;
+        } catch (e) {}
+
         if (params) { for (var p in params) { merged[p] = params[p]; } }
         gtag("event", eventName, merged);
       }
