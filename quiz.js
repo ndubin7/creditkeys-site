@@ -544,12 +544,19 @@ const CreditKeysQuiz = (function () {
     }
   }
 
-  const AB_ARMS = ['quiz', 'list', 'chime'];
+  // The quiz arm was retired on Sep 6. It was the weakest hypothesis and was
+  // absorbing a third of the traffic, which pushed the cost of a conclusive
+  // read from roughly $800 to $1,200 at 21c a click. Concentrating spend on the
+  // two offer-page layouts is what makes the test affordable. The quiz code is
+  // left intact rather than deleted so the arm can be restored by adding 'quiz'
+  // back to this array; visitors already holding a sticky 'quiz' value keep it
+  // until their session ends, so no one is switched mid-visit.
+  const AB_ARMS = ['list', 'chime'];
 
   function getPageVariant() {
     var v = null;
     try { v = sessionStorage.getItem('ck_ab_page'); } catch (e) {}
-    if (AB_ARMS.indexOf(v) === -1) {
+    if (AB_ARMS.indexOf(v) === -1 && v !== 'quiz') {
       v = AB_ARMS[Math.floor(Math.random() * AB_ARMS.length)];
       try { sessionStorage.setItem('ck_ab_page', v); } catch (e) {}
     }
