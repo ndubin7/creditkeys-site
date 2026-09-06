@@ -80,6 +80,17 @@
 .ck-facts .no{color:#A8322B;}
 .ck-offer .btn{width:100%;}
 .ck-offer .disclaimer{margin-top:12px;}
+/* --- List variant: lead-offer emphasis (Sep 2026) ---------------------
+   The list previously showed three equally-weighted cards, which asks the
+   visitor to make a comparison before they can act. Chime now leads with a
+   filled button and the other two drop to outline buttons under a divider,
+   so there is one obvious action and two fallbacks rather than a three-way
+   decision. */
+.ck-offer-lead{border-color:var(--brass);box-shadow:0 4px 18px rgba(184,134,62,0.13);}
+.ck-badge{display:inline-block;background:var(--brass);color:var(--white);font-size:0.72rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;padding:4px 10px;border-radius:999px;margin-bottom:12px;}
+.ck-alt-head{font-size:0.85rem;font-weight:600;color:var(--ink-soft);text-align:center;margin:26px 0 14px;position:relative;}
+.ck-alt-head::before,.ck-alt-head::after{content:"";position:absolute;top:50%;width:22%;height:1px;background:var(--slate-light);}
+.ck-alt-head::before{left:0;} .ck-alt-head::after{right:0;}
 @media (max-width:480px){
   .ck-list{padding:0 20px 8px;}
   .ck-list-intro h1{font-size:1.4rem;}
