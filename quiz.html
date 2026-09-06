@@ -117,7 +117,11 @@
 .ck-alt-head::before,.ck-alt-head::after{content:"";position:absolute;top:50%;width:22%;height:1px;background:var(--slate-light);}
 .ck-alt-head::before{left:0;} .ck-alt-head::after{right:0;}
 @media (max-width:480px){
-  .ck-list{padding:0 20px 8px;}
+  /* The padding shorthand here would reset the 88px bottom padding set in the
+     640px block above, because this rule comes later. On a phone that lets the
+     fixed sticky bar sit on top of the legal disclaimers - the one block that
+     must stay readable. Bottom padding is restated explicitly to keep it. */
+  .ck-list{padding:0 20px 88px;}
   .ck-list-intro h1{font-size:1.4rem;}
   .ck-offer{padding:17px;}
 }
