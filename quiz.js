@@ -344,26 +344,26 @@ const CreditKeysQuiz = (function () {
   // VOIP-number or credit-frozen visitor can rule Kikoff out themselves
   // instead of being silently routed away from it.
   const OFFER_FACTS = {
+    chime: [
+      { t: 'ok',   s: 'No credit check and no monthly fee' },
+      { t: 'ok',   s: 'Builds credit through everyday spending, with no separate loan' },
+      { t: 'ok',   s: 'Available in every state' },
+      { t: 'warn', s: 'Needs a Chime account and a direct deposit of $200 or more' },
+      { t: 'no',   s: 'Requires an SSN' }
+    ],
     creditstrong: [
       { t: 'ok',   s: 'Accepts an ITIN if you do not have an SSN' },
       { t: 'ok',   s: 'No credit check and no credit history needed' },
       { t: 'ok',   s: 'Works with a credit freeze in place' },
-      { t: 'no',   s: 'Not available in Vermont or Wisconsin' },
-      { t: 'warn', s: 'Money is locked in savings until the term ends' }
+      { t: 'warn', s: 'Your money is locked in savings until the term ends' },
+      { t: 'no',   s: 'Not available in Vermont or Wisconsin' }
     ],
     kikoff: [
       { t: 'ok',   s: 'No credit check to open' },
       { t: 'ok',   s: 'Lowest monthly cost of the three' },
-      { t: 'no',   s: 'Needs a regular mobile number - Google Voice and other internet numbers are rejected' },
+      { t: 'warn', s: 'Needs a regular mobile number - Google Voice and other internet numbers are rejected' },
       { t: 'no',   s: 'Cannot be opened while a credit freeze is active' },
       { t: 'no',   s: 'Requires an SSN, and is not available in Delaware or Indiana' }
-    ],
-    chime: [
-      { t: 'ok',   s: 'No credit check and no monthly fee' },
-      { t: 'ok',   s: 'Available in every state' },
-      { t: 'ok',   s: 'Builds credit through normal spending, with no separate loan' },
-      { t: 'warn', s: 'Needs a Chime account with a qualifying direct deposit' },
-      { t: 'no',   s: 'Requires an SSN' }
     ]
   };
 
@@ -373,43 +373,57 @@ const CreditKeysQuiz = (function () {
     const host = document.getElementById('ckList');
     if (!host) return;
 
-    // Fixed order: CreditStrong first because it is the only option with no
-    // SSN requirement, so it is the one that works for the widest audience.
-    const order = ['creditstrong', 'chime', 'kikoff'];
+    // Order is set by unit economics, not by breadth of eligibility.
+    // At the click-out rate we actually measure (~1.3%), a click-out costs
+    // about $17. Kikoff pays $28.71 and CreditStrong $30-40, so those need
+    // roughly half of everyone who clicks through to complete a paid signup -
+    // which no affiliate funnel does. Chime pays $250, so it only needs about
+    // 7%. Chime is therefore the only offer whose maths closes at current
+    // performance, and it leads. The other two stay because they cover people
+    // Chime rejects: CreditStrong takes an ITIN, Kikoff is the cheapest entry.
+    const LEAD = 'chime';
+    const REST = ['creditstrong', 'kikoff'];
+
+    function card(key, position, isLead) {
+      const o = OFFER_CONTENT[key];
+      const facts = (OFFER_FACTS[key] || []).map(function (f) {
+        return '<li><span class="ic ' + f.t + '">' + FACT_ICON[f.t] + '</span><span>' + f.s + '</span></li>';
+      }).join('');
+      const logoHtml = o.logoIsText
+        ? '<div class="brand-logo text-logo" style="color:' + o.logoColor + ';">' + o.name + '</div>'
+        : '<img src="' + o.logo + '" alt="' + o.name + ' logo">';
+      return '' +
+        '<div class="ck-offer' + (isLead ? ' ck-offer-lead' : '') + '">' +
+          (isLead ? '<div class="ck-badge">Where most people start</div>' : '') +
+          '<div class="ck-offer-head">' + logoHtml + '</div>' +
+          '<p class="ck-offer-blurb">' + o.blurb + '</p>' +
+          '<p class="ck-offer-price">' + o.price + '</p>' +
+          '<ul class="ck-facts">' + facts + '</ul>' +
+          '<a href="' + offerLinkWithClickId(key) + '" class="btn ' +
+            (isLead ? 'btn-primary' : 'btn-outline') + '" ' +
+            'onclick="return trackOfferClick(\'' + key + '\', ' + position + ')">' +
+            (isLead ? 'Get started with ' + o.name : 'Choose ' + o.name) + '</a>' +
+          '<p class="disclaimer">' + o.disclaimer + '</p>' +
+        '</div>';
+    }
 
     host.innerHTML =
       '<div class="ck-list-intro">' +
-        '<h1>Three ways to start building credit</h1>' +
-        '<p>Each one has different requirements. The details below tell you which will actually accept you, so you are not applying blind.</p>' +
+        '<h1>Start building credit this week</h1>' +
+        '<p>Three options, no credit check on any of them. The details below tell you which will actually accept you, so you are not applying blind.</p>' +
       '</div>' +
-      order.map(function (key, i) {
-        const o = OFFER_CONTENT[key];
-        const facts = (OFFER_FACTS[key] || []).map(function (f) {
-          return '<li><span class="ic ' + f.t + '">' + FACT_ICON[f.t] + '</span><span>' + f.s + '</span></li>';
-        }).join('');
-        const logoHtml = o.logoIsText
-          ? '<div class="brand-logo text-logo" style="color:' + o.logoColor + ';">' + o.name + '</div>'
-          : '<img src="' + o.logo + '" alt="' + o.name + ' logo">';
-        return '' +
-          '<div class="ck-offer">' +
-            '<div class="ck-offer-head">' + logoHtml + '</div>' +
-            '<p class="ck-offer-blurb">' + o.blurb + '</p>' +
-            '<p class="ck-offer-price">' + o.price + '</p>' +
-            '<ul class="ck-facts">' + facts + '</ul>' +
-            '<a href="' + offerLinkWithClickId(key) + '" class="btn btn-primary" ' +
-              'onclick="return trackOfferClick(\'' + key + '\', ' + (i + 1) + ')">' +
-              'Start with ' + o.name + '</a>' +
-            '<p class="disclaimer">' + o.disclaimer + '</p>' +
-          '</div>';
-      }).join('');
+      card(LEAD, 1, true) +
+      '<div class="ck-alt-head">If ' + OFFER_CONTENT[LEAD].name + ' is not a fit</div>' +
+      REST.map(function (k, i) { return card(k, i + 2, false); }).join('');
 
+    host.hidden = false;
     host.hidden = false;
     document.querySelectorAll('.quiz-step').forEach(function (s) { s.classList.remove('active'); });
     const prog = document.querySelector('.quiz-progress');
     if (prog) prog.style.display = 'none';
 
     if (window.CKAnalytics) {
-      CKAnalytics.track('offer_list_viewed', { offers_shown: order.join(',') });
+      CKAnalytics.track('offer_list_viewed', { offers_shown: [LEAD].concat(REST).join(','), lead_offer: LEAD });
     }
   }
 
