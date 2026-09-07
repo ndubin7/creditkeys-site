@@ -86,6 +86,31 @@
    filled button and the other two drop to outline buttons under a divider,
    so there is one obvious action and two fallbacks rather than a three-way
    decision. */
+/* --- Trust layer (Sep 2026) ---------------------------------------------
+   The offer pages opened cold - headline, then products - with nothing
+   establishing who was recommending them or on what basis. On a finance
+   page that is a lot to ask of someone who arrived from a content site ten
+   seconds ago. The hero is deliberately short (a band, not a splash) so it
+   reads as editorial furniture rather than a landing-page interstitial, and
+   so it does not push the first CTA far down; the sticky bar covers anyone
+   who scrolls past it. */
+.ck-hero{max-width:640px;margin:0 auto 18px;padding:0 24px;}
+.ck-hero img{display:block;width:100%;height:148px;object-fit:cover;object-position:center 28%;border-radius:var(--radius);}
+.ck-byline{font-size:0.78rem;color:var(--ink-soft);opacity:0.8;margin:8px 0 0;letter-spacing:0.01em;}
+.ck-trust{list-style:none;max-width:640px;margin:0 auto 22px;padding:14px 24px;display:flex;flex-wrap:wrap;gap:8px 18px;justify-content:center;border-top:1px solid var(--slate-light);border-bottom:1px solid var(--slate-light);}
+.ck-trust li{display:flex;align-items:center;gap:6px;font-size:0.8rem;color:var(--ink-soft);white-space:nowrap;}
+.ck-trust-ic{color:#1F7A4D;font-weight:700;}
+.ck-method{margin-top:28px;padding:20px;background:var(--paper-alt);border-radius:var(--radius);}
+.ck-method h2{font-family:'Space Grotesk','Inter',sans-serif;font-size:1.02rem;margin:0 0 10px;color:var(--ink);}
+.ck-method p{font-size:0.88rem;line-height:1.62;color:var(--ink-soft);margin:0 0 10px;}
+.ck-method p:last-child{margin:0;}
+@media (max-width:480px){
+  .ck-hero{padding:0 20px;margin-bottom:14px;}
+  .ck-hero img{height:118px;}
+  .ck-trust{gap:7px 14px;padding:12px 20px;margin-bottom:18px;}
+  .ck-trust li{font-size:0.75rem;}
+}
+
 /* --- Chime-only arm, sticky mobile CTA, below-fold legal (Sep 2026) ------
    Three changes aimed at click-out rate:
    1. .ck-anchor puts the cost/no-credit-check fact directly under the H1,
