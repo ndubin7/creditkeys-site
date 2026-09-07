@@ -111,6 +111,29 @@
   .ck-trust li{font-size:0.75rem;}
 }
 
+/* --- Above-the-fold CTA (Sep 2026) --------------------------------------
+   The trust layer pushed the first button below the fold on a phone. Rather
+   than choose between credibility and a visible action, the card itself is
+   reordered: the single hardest eligibility requirement sits immediately
+   above the button, and the full bullet list moves below it under a heading.
+   Nobody clicks blind - the thing most likely to reject them is the last
+   line they read before the button - but the action is reachable without
+   scrolling past five bullets first. */
+.ck-gate{font-size:0.82rem;line-height:1.5;color:var(--ink-soft);background:var(--paper-alt);border-radius:var(--radius-sm);padding:9px 12px;margin:0 0 14px;}
+.ck-detail{margin-top:16px;padding-top:14px;border-top:1px solid var(--slate-light);}
+.ck-detail-h{display:block;font-size:0.72rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--ink-soft);opacity:0.75;margin-bottom:10px;}
+.ck-detail .ck-facts{margin-bottom:0;}
+.ck-trust{flex-wrap:nowrap;}
+@media (max-width:480px){
+  .ck-hero img{height:104px;}
+  .ck-list-intro h1{font-size:1.32rem;line-height:1.24;}
+  .ck-byline{font-size:0.72rem;margin-top:6px;}
+  .ck-trust{gap:0 10px;padding:10px 14px;margin-bottom:14px;}
+  .ck-trust li{font-size:0.68rem;}
+  .ck-offer{padding:15px;}
+  .ck-gate{font-size:0.78rem;padding:8px 10px;margin-bottom:12px;}
+}
+
 /* --- Chime-only arm, sticky mobile CTA, below-fold legal (Sep 2026) ------
    Three changes aimed at click-out rate:
    1. .ck-anchor puts the cost/no-credit-check fact directly under the H1,
