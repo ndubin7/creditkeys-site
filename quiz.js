@@ -375,6 +375,12 @@ const CreditKeysQuiz = (function () {
     ]
   };
 
+  const OFFER_GATE = {
+    chime:        'Needs an SSN and a Chime account with a direct deposit of $200 or more.',
+    creditstrong: 'Accepts an ITIN. Not available in Vermont or Wisconsin.',
+    kikoff:       'Needs an SSN and a regular mobile number. Not available in Delaware or Indiana.'
+  };
+
   const FACT_ICON = { ok: '\u2713', warn: '!', no: '\u2715' };
 
   function renderOfferList() {
@@ -406,11 +412,13 @@ const CreditKeysQuiz = (function () {
           '<div class="ck-offer-head">' + logoHtml + '</div>' +
           '<p class="ck-offer-blurb">' + o.blurb + '</p>' +
           '<p class="ck-offer-price">' + o.price + '</p>' +
-          '<ul class="ck-facts">' + facts + '</ul>' +
+          '<p class="ck-gate">' + (OFFER_GATE[key] || '') + '</p>' +
           '<a href="' + offerLinkWithClickId(key) + '" class="btn ' +
             (isLead ? 'btn-primary' : 'btn-outline') + '" ' +
-            'onclick="return trackOfferClick(\'' + key + '\', ' + position + ')">' +
+            'onclick="return trackOfferClick(\'' + key + '\', ' + position + ', \'offer_card\')">' +
             (isLead ? 'Get started with ' + o.name : 'Choose ' + o.name) + '</a>' +
+          '<div class="ck-detail"><span class="ck-detail-h">Before you apply</span>' +
+            '<ul class="ck-facts">' + facts + '</ul></div>' +
         '</div>';
     }
 
@@ -466,9 +474,9 @@ const CreditKeysQuiz = (function () {
         '<p class="ck-byline">Independently compared by CreditKeys &middot; Reviewed ' + LAST_REVIEWED + '</p>' +
       '</div>' +
       '<ul class="ck-trust">' +
-        '<li><span class="ck-trust-ic">\u2713</span>No credit check to compare</li>' +
-        '<li><span class="ck-trust-ic">\u2713</span>We never pull your credit report</li>' +
-        '<li><span class="ck-trust-ic">\u2713</span>Free to use, no signup here</li>' +
+        '<li><span class="ck-trust-ic">\u2713</span>No credit check</li>' +
+        '<li><span class="ck-trust-ic">\u2713</span>We never pull your credit</li>' +
+        '<li><span class="ck-trust-ic">\u2713</span>No signup here</li>' +
       '</ul>';
   }
 
@@ -510,15 +518,17 @@ const CreditKeysQuiz = (function () {
     if (!bar || !anchor) return;
     var shown = false;
     function check() {
-      var past = anchor.getBoundingClientRect().bottom < 0;
-      if (past === shown) return;
-      shown = past;
-      bar.hidden = !past;
-      if (past && window.CKAnalytics) {
+      var r = anchor.getBoundingClientRect();
+      var offscreen = r.bottom < 0 || r.top > window.innerHeight;
+      if (offscreen === shown) return;
+      shown = offscreen;
+      bar.hidden = !offscreen;
+      if (offscreen && window.CKAnalytics) {
         CKAnalytics.track('sticky_cta_shown', {});
       }
     }
     window.addEventListener('scroll', check, { passive: true });
+    window.addEventListener('resize', check, { passive: true });
     check();
   }
 
@@ -560,10 +570,12 @@ const CreditKeysQuiz = (function () {
       '<div class="ck-offer ck-solo">' +
         '<div class="ck-offer-head">' + logoHtml + '</div>' +
         '<p class="ck-offer-blurb">' + o.blurb + '</p>' +
-        '<ul class="ck-facts">' + facts + '</ul>' +
+        '<p class="ck-gate">' + (OFFER_GATE[key] || '') + '</p>' +
         '<a href="' + offerLinkWithClickId(key) + '" class="btn btn-primary" ' +
           'onclick="return trackOfferClick(\'' + key + '\', 1, \'offer_card\')">' +
           'Get started with ' + o.name + '</a>' +
+        '<div class="ck-detail"><span class="ck-detail-h">Before you apply</span>' +
+          '<ul class="ck-facts">' + facts + '</ul></div>' +
       '</div>' +
       '<div class="ck-steps">' +
         '<h2>How it works</h2>' +
