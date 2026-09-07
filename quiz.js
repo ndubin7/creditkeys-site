@@ -415,14 +415,14 @@ const CreditKeysQuiz = (function () {
     }
 
     host.innerHTML =
-      '<div class="ck-list-intro">' +
-        '<h1>Start building credit this week</h1>' +
-        '<p class="ck-anchor">No credit check on any of them. From $0 a month.</p>' +
-        '<p>The details below tell you which will actually accept you, so you are not applying blind.</p>' +
-      '</div>' +
+      trustHeader(
+        'Start building credit this week',
+        'No credit check on any of them. From $0 a month.'
+      ) +
       card(LEAD, 1, true) +
       '<div class="ck-alt-head">If ' + OFFER_CONTENT[LEAD].name + ' is not a fit</div>' +
       REST.map(function (k, i) { return card(k, i + 2, false); }).join('') +
+      methodologyBlock() +
       disclaimerBlock([LEAD].concat(REST)) +
       stickyBar(LEAD, 'Get started with ' + OFFER_CONTENT[LEAD].name);
 
@@ -445,6 +445,46 @@ const CreditKeysQuiz = (function () {
   // strongest available test of whether choice itself is suppressing click-outs,
   // since Chime is also the only offer whose payout maths closes at the rate we
   // currently measure.
+
+
+  // Bumped by hand when the offer set or eligibility rules are re-checked.
+  // A stale date is worse than no date, so this should never be automated
+  // off the build time - it would claim a review that never happened.
+  const LAST_REVIEWED = 'September 2026';
+
+  function trustHeader(headline, subline) {
+    return '' +
+      '<div class="ck-hero">' +
+        '<img src="assets/images/hero-square.jpg" alt="" loading="eager" width="1080" height="1080">' +
+      '</div>' +
+      '<div class="ck-list-intro">' +
+        '<h1>' + headline + '</h1>' +
+        '<p class="ck-anchor">' + subline + '</p>' +
+        '<p class="ck-byline">Independently compared by CreditKeys &middot; Reviewed ' + LAST_REVIEWED + '</p>' +
+      '</div>' +
+      '<ul class="ck-trust">' +
+        '<li><span class="ck-trust-ic">\u2713</span>No credit check to compare</li>' +
+        '<li><span class="ck-trust-ic">\u2713</span>We never pull your credit report</li>' +
+        '<li><span class="ck-trust-ic">\u2713</span>Free to use, no signup here</li>' +
+      '</ul>';
+  }
+
+  // Sits after the offers, not before: it answers "why should I believe
+  // this ordering?" for the visitor who scrolled past without clicking,
+  // rather than delaying the ones who were ready to act.
+  function methodologyBlock() {
+    return '' +
+      '<section class="ck-method">' +
+        '<h2>How we picked these</h2>' +
+        '<p>We only list credit-building products that report to the major credit bureaus and ' +
+        'can be opened without a hard credit check. For each one we check the things that ' +
+        'quietly block people at signup - state availability, whether an ITIN is accepted, ' +
+        'whether a credit freeze has to be lifted first - and we state them upfront rather ' +
+        'than letting you find out after you apply.</p>' +
+        '<p>You apply on the provider\'s own site, under their terms. We are not a lender, ' +
+        'we do not extend credit, and we never see your Social Security number or bank details.</p>' +
+      '</section>';
+  }
 
   // Sticky bar, mobile only (hidden by CSS above 640px). Traffic is roughly
   // 5x mobile, and on a phone the primary button scrolls out of view as soon
@@ -510,10 +550,10 @@ const CreditKeysQuiz = (function () {
       : '<img src="' + o.logo + '" alt="' + o.name + ' logo">';
 
     host.innerHTML =
-      '<div class="ck-list-intro">' +
-        '<h1>Build credit with the account you already get paid into</h1>' +
-        '<p class="ck-anchor">No credit check. No monthly fee. No separate loan.</p>' +
-      '</div>' +
+      trustHeader(
+        'Build credit with the account you already get paid into',
+        'No credit check. No monthly fee. No separate loan.'
+      ) +
       '<div class="ck-offer ck-solo">' +
         '<div class="ck-offer-head">' + logoHtml + '</div>' +
         '<p class="ck-offer-blurb">' + o.blurb + '</p>' +
@@ -530,6 +570,7 @@ const CreditKeysQuiz = (function () {
           '<li>Spend as you normally would. Your activity is reported to the credit bureaus.</li>' +
         '</ol>' +
       '</div>' +
+      methodologyBlock() +
       disclaimerBlock([key]) +
       stickyBar(key, 'Get started with ' + o.name);
 
