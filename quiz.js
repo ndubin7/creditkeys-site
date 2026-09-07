@@ -455,7 +455,10 @@ const CreditKeysQuiz = (function () {
   function trustHeader(headline, subline) {
     return '' +
       '<div class="ck-hero">' +
-        '<img src="assets/images/hero-square.jpg" alt="" loading="eager" width="1080" height="1080">' +
+        // trust-image.jpg is natively 1200x669, so it crops to a band without
+        // slicing a face. hero-square.jpg is a 1:1 portrait and cropping it to
+        // a short strip cut the subject across the eyes.
+        '<img src="assets/images/trust-image.jpg" alt="Someone reviewing their finances at home" loading="eager" width="1200" height="669">' +
       '</div>' +
       '<div class="ck-list-intro">' +
         '<h1>' + headline + '</h1>' +
